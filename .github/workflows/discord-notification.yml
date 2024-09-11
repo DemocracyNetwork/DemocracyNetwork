@@ -17,6 +17,21 @@ jobs:
           RELEASE_URL="${{ github.event.release.html_url }}"
           REPO_NAME="${{ github.repository }}"
           
+          # Obtener el body del release y procesar el Markdown básico
+          RELEASE_BODY=$(echo '${{ github.event.release.body }}' | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/`/\\`/g' | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g')
+          
+          # Convertir algunos elementos de Markdown a formato Discord
+          RELEASE_BODY=$(echo "$RELEASE_BODY" | sed 's/\*\*\(.*\)\*\*/\*\*\1\*\*/g') # Negrita
+          RELEASE_BODY=$(echo "$RELEASE_BODY" | sed 's/\*\(.*\)\*/_\1_/g') # Cursiva
+          RELEASE_BODY=$(echo "$RELEASE_BODY" | sed 's/^- /• /g') # Listas
+
+          # Limitar la longitud del body y añadir el enlace "Ver más"
+          if [ ${#RELEASE_BODY} -gt 950 ]; then
+            RELEASE_BODY="${RELEASE_BODY:0:950}...\n\n[Ver más]($RELEASE_URL)"
+          else
+            RELEASE_BODY="$RELEASE_BODY\n\n[Ver más]($RELEASE_URL)"
+          fi
+          
           # Crear el JSON para el embed
           JSON_PAYLOAD=$(cat <<EOF
           {
@@ -32,8 +47,12 @@ jobs:
                 },
                 {
                   "name": "Detalles",
-                  "value": "[Ver descripción completa]($RELEASE_URL)",
+                  "value": "[Ver en GitHub]($RELEASE_URL)",
                   "inline": true
+                },
+                {
+                  "name": "Notas del Release",
+                  "value": "$RELEASE_BODY"
                 }
               ],
               "footer": {
