@@ -1,0 +1,49 @@
+name: Discord Release Notification
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  notify_discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord Notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          RELEASE_NAME="${{ github.event.release.name }}"
+          RELEASE_TAG="${{ github.event.release.tag_name }}"
+          RELEASE_URL="${{ github.event.release.html_url }}"
+          REPO_NAME="${{ github.repository }}"
+          
+          # Crear el JSON para el embed
+          JSON_PAYLOAD=$(cat <<EOF
+          {
+            "embeds": [{
+              "title": "Nuevo Release: $RELEASE_NAME",
+              "description": "Se ha publicado un nuevo release en $REPO_NAME",
+              "color": 5814783,
+              "fields": [
+                {
+                  "name": "Versión",
+                  "value": "$RELEASE_TAG",
+                  "inline": true
+                },
+                {
+                  "name": "Detalles",
+                  "value": "[Ver descripción completa]($RELEASE_URL)",
+                  "inline": true
+                }
+              ],
+              "footer": {
+                "text": "GitHub Releases"
+              },
+              "timestamp": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            }]
+          }
+          EOF
+          )
+          
+          # Enviar el embed a Discord
+          curl -H "Content-Type: application/json" -d "$JSON_PAYLOAD" $DISCORD_WEBHOOK
