@@ -21,7 +21,6 @@ jobs:
           RELEASE_BODY=$(echo '${{ github.event.release.body }}' | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/`/\\`/g' | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g')
           
           # Convertir algunos elementos de Markdown a formato Discord
-          RELEASE_BODY=$(echo "$RELEASE_BODY" | sed 's/\*\*\(.*\)\*\*/\*\*\1\*\*/g') # Negrita
           RELEASE_BODY=$(echo "$RELEASE_BODY" | sed 's/\*\(.*\)\*/_\1_/g') # Cursiva
           RELEASE_BODY=$(echo "$RELEASE_BODY" | sed 's/^- /• /g') # Listas
 
@@ -36,8 +35,8 @@ jobs:
           JSON_PAYLOAD=$(cat <<EOF
           {
             "embeds": [{
-              "title": "Nuevo Release: $RELEASE_NAME",
-              "description": "Se ha publicado un nuevo release en $REPO_NAME",
+              "title": "Nueva Versión: $RELEASE_NAME",
+              "description": "Se ha publicado una nueva versión en $REPO_NAME",
               "color": 5814783,
               "fields": [
                 {
@@ -51,12 +50,12 @@ jobs:
                   "inline": true
                 },
                 {
-                  "name": "Notas del Release",
+                  "name": "Notas de Versión",
                   "value": "$RELEASE_BODY"
                 }
               ],
               "footer": {
-                "text": "GitHub Releases"
+                "text": "Democracy Network - Github"
               },
               "timestamp": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
             }]
