@@ -20,9 +20,9 @@ jobs:
           # Obtener el body del release y procesar el Markdown básico
           RELEASE_BODY=$(echo '${{ github.event.release.body }}' | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/`/\\`/g' | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g')
           
-          # Convertir algunos elementos de Markdown a formato Discord
+          # Convertir algunos elementos de Markdown a formato de texto enriquecido de Discord
           RELEASE_BODY=$(echo "$RELEASE_BODY" | sed 's/\*\*\([^*]*\)\*\*/\*\*\1\*\*/g') # Negrita
-          RELEASE_BODY=$(echo "$RELEASE_BODY" | sed 's/\*\([^*]*\)\*/_\1_/g') # Cursiva
+          RELEASE_BODY=$(echo "$RELEASE_BODY" | sed 's/\*\([^*]*\)\*/\*\1\*/g') # Cursiva
           RELEASE_BODY=$(echo "$RELEASE_BODY" | sed 's/^- /• /g') # Listas
 
           # Limitar la longitud del body y añadir el enlace "Ver más"
